@@ -87,6 +87,20 @@ const getProductBYQuery = async function(req, res) {
 const getProductById = async function(req, res) {//Go to valid js for validation
     try {
         let productId = req.params.productId
+
+        if (productId.length < 24 || productId.length > 24) {
+            return res.status(400).send({ status: false, msg: "Plz Enter Valid Length Of productId in Params" });
+        }
+
+        if (!validator.isValidObjectId(productId)) {
+            return res.status(400).send({ status: false, message: "please provide valid productId" });
+        }
+
+        let bData = await productModel.findById(productId);
+        if (!bData) {
+            return res.status(404).send({ status: false, message: "Data Not Found" });
+        }
+
         const searchProduct = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!searchProduct) {
             return res.status(400).send({ status: false, msg: 'product does not exist with this prouct id or incorrect product id' })
@@ -138,8 +152,10 @@ const updateProduct = async(req,res)=>{
              return res.status(400).send({ status: false, message: "price is number" })
         }
         if(Number(data.price)<=0)      return res.status(400).send({ status: false, message: "price must be greater than 0" })
-        
-        product.price = data.price
+      const price=await productModel.findOne({_id:productId})
+      console.log(price)
+        product.price = price
+        console.log(price)
     }
 
         //------------------------------------currencyId-----------------------------------------------------------
@@ -170,8 +186,8 @@ const updateProduct = async(req,res)=>{
                  //upload to s3 and get the uploaded link
                  // res.send the link back to frontend/postman
                  let image = files[0].originalname.split(".")
-                 if(!['png','jpg'].includes(image[image.length-1])){
-                    return res.status(400).send({ status: false, message: "must be png and jpg" })
+                 if(!['png','jpg','pdf'].includes(image[image.length-1])){
+                    return res.status(400).send({ status: false, message: "must be png , jpg and pdf" })
 
                  }
                  let uploadedFileURL= await uploadFile( files[0] )
