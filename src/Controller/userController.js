@@ -68,6 +68,7 @@ const createUser = async function(req, res) {
         }
 
     const salt = await bcrypt.genSalt(10);
+    console.log(salt);
     const passwordhash=await bcrypt.hash(data.password,salt)
     data.password=passwordhash
     console.log(passwordhash)
